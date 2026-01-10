@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crownzcom Investment Club</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background: #f4f4f4; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: #2c3e50; color: white; padding: 1rem; text-align: center; margin-bottom: 2rem; }
+        .card { background: white; padding: 1.5rem; margin-bottom: 1rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #3498db; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; margin-right: 0.5rem; }
+        button:hover { background: #2980b9; }
+        button.danger { background: #e74c3c; }
+        button.danger:hover { background: #c0392b; }
+        button.success { background: #27ae60; }
+        button.success:hover { background: #229954; }
+        .hidden { display: none; }
+        .error { color: #e74c3c; background: #fadbd8; padding: 0.5rem; border-radius: 4px; margin: 0.5rem 0; }
+        .success { color: #27ae60; background: #d5f4e6; padding: 0.5rem; border-radius: 4px; margin: 0.5rem 0; }
+        .tabs { display: flex; margin-bottom: 1rem; }
+        .tab { padding: 0.75rem 1.5rem; background: #ecf0f1; border: none; cursor: pointer; margin-right: 0.25rem; }
+        .tab.active { background: #3498db; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f8f9fa; font-weight: bold; }
+        .status-pending { color: #f39c12; }
+        .status-active { color: #27ae60; }
+        .status-completed { color: #95a5a6; }
+        .status-rejected { color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Crownzcom Investment Club</h1>
+        <p>Savings & Loan Management System</p>
+    </div>
+
+    <div class="container">
+        <!-- Login Section -->
+        <div id="loginSection" class="card">
+            <h2>Login</h2>
+            <div class="form-group">
+                <label>Username:</label>
+                <input type="text" id="username" value="admin">
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="password" value="admin123">
+            </div>
+            <button onclick="login()">Login</button>
+            <div id="loginMessage"></div>
+        </div>
+
+        <!-- Main Application -->
+        <div id="mainApp" class="hidden">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2>Welcome, <span id="userName"></span></h2>
+                        <p>Role: <span id="userRole"></span></p>
+                    </div>
+                    <button onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('dashboard')">Dashboard</button>
+                <button class="tab" onclick="showTab('loans')" id="loansTab">Loans</button>
+                <button class="tab" onclick="showTab('savings')" id="savingsTab">Savings</button>
+                <button class="tab hidden" onclick="showTab('admin')" id="adminTab">Admin</button>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="card">
+                    <h3>Financial Summary</h3>
+                    <div id="financialSummary">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Loans Tab -->
+            <div id="loans" class="tab-content">
+                <div class="card">
+                    <h3>My Loans</h3>
+                    <div id="memberLoansSection">
+                        <button onclick="showLoanApplication()">Apply for Loan</button>
+                        <div id="loansList">Loading...</div>
+                    </div>
+                    
+                    <div id="adminLoansSection" class="hidden">
+                        <h4>Loan Management</h4>
+                        <button onclick="loadPendingLoans()">Pending Loans</button>
+                        <button onclick="loadActiveLoans()">Active Loans</button>
+                        <div id="adminLoansList"></div>
+                    </div>
+                </div>
+
+                <!-- Loan Application Modal -->
+                <div id="loanApplicationModal" class="card hidden">
+                    <h3>Loan Application</h3>
+                    <div class="form-group">
+                        <label>Principal Amount:</label>
+                        <input type="number" id="loanPrincipal" min="1000" step="1000">
+                    </div>
+                    <div class="form-group">
+                        <label>Repayment Period (months):</label>
+                        <input type="number" id="repaymentPeriod" min="1" max="12" value="6">
+                    </div>
+                    <button onclick="submitLoanApplication()" class="success">Submit Application</button>
+                    <button onclick="hideLoanApplication()">Cancel</button>
+                    <div id="loanApplicationMessage"></div>
+                </div>
+            </div>
+
+            <!-- Savings Tab -->
+            <div id="savings" class="tab-content">
+                <div class="card">
+                    <h3>My Savings</h3>
+                    <div id="memberSavingsSection">
+                        <div id="savingsBalance">Loading...</div>
+                        <div id="savingsTransactions"></div>
+                    </div>
+                    
+                    <div id="adminSavingsSection" class="hidden">
+                        <h4>Savings Management</h4>
+                        <button onclick="showPostSavings()">Post Savings</button>
+                        <button onclick="loadAllBalances()">View All Balances</button>
+                        <div id="adminSavingsContent"></div>
+                    </div>
+                </div>
+
+                <!-- Post Savings Modal -->
+                <div id="postSavingsModal" class="card hidden">
+                    <h3>Post Savings</h3>
+                    <div class="form-group">
+                        <label>Member:</label>
+                        <select id="savingsMember"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount:</label>
+                        <input type="number" id="savingsAmount" min="1" step="1000">
+                    </div>
+                    <div class="form-group">
+                        <label>Description:</label>
+                        <input type="text" id="savingsDescription" value="Monthly savings deposit">
+                    </div>
+                    <button onclick="submitSavings()" class="success">Post Savings</button>
+                    <button onclick="hidePostSavings()">Cancel</button>
+                    <div id="postSavingsMessage"></div>
+                </div>
+            </div>
+
+            <!-- Admin Tab -->
+            <div id="admin" class="tab-content">
+                <div class="card">
+                    <h3>System Configuration</h3>
+                    <div id="systemConfig">Loading...</div>
+                </div>
+                
+                <div class="card">
+                    <h3>Recent Activity</h3>
+                    <div id="auditTrail">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let authToken = null;
+        const API_BASE = '/api';
+
+        // Authentication
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentUser = data.user;
+                    authToken = data.token;
+                    showMainApp();
+                } else {
+                    showMessage('loginMessage', data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('loginMessage', 'Login failed: ' + error.message, 'error');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            authToken = null;
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+        }
+
+        function showMainApp() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('userName').textContent = currentUser.full_name;
+            document.getElementById('userRole').textContent = currentUser.role;
+            
+            if (currentUser.role === 'admin') {
+                document.getElementById('adminTab').classList.remove('hidden');
+                document.getElementById('adminLoansSection').classList.remove('hidden');
+                document.getElementById('adminSavingsSection').classList.remove('hidden');
+            }
+            
+            loadDashboard();
+            loadUserLoans();
+            loadUserSavings();
+            if (currentUser.role === 'admin') {
+                loadSystemConfig();
+                loadMembers();
+            }
+        }
+
+        // API Helper
+        async function apiCall(endpoint, options = {}) {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                ...options
+            };
+            
+            const response = await fetch(`${API_BASE}${endpoint}`, config);
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'API call failed');
+            }
+            
+            return data;
+        }
+
+        // Dashboard
+        async function loadDashboard() {
+            try {
+                if (currentUser.role === 'admin') {
+                    const summary = await apiCall('/admin/financial-summary');
+                    document.getElementById('financialSummary').innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div><strong>Total Savings:</strong> ${formatCurrency(summary.totalSavings)}</div>
+                            <div><strong>Active Loans:</strong> ${summary.activeLoansCount}</div>
+                            <div><strong>Outstanding Balance:</strong> ${formatCurrency(summary.totalLoansOutstanding)}</div>
+                            <div><strong>Members:</strong> ${summary.memberCount}</div>
+                        </div>
+                    `;
+                } else {
+                    const statement = await apiCall('/savings/my-statement');
+                    document.getElementById('financialSummary').innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div><strong>Savings Balance:</strong> ${formatCurrency(statement.savingsBalance)}</div>
+                            <div><strong>Active Loans:</strong> ${statement.activeLoans.length}</div>
+                            <div><strong>Interest Earned:</strong> ${formatCurrency(statement.interestEarned)}</div>
+                            <div><strong>Net Position:</strong> ${formatCurrency(statement.netPosition)}</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('financialSummary').innerHTML = `<div class="error">Error loading dashboard: ${error.message}</div>`;
+            }
+        }
+
+        // Loans
+        async function loadUserLoans() {
+            try {
+                const loans = await apiCall('/loans/my-loans');
+                const html = loans.length > 0 ? `
+                    <table>
+                        <thead>
+                            <tr><th>Amount</th><th>Status</th><th>Remaining</th><th>Applied</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            ${loans.map(loan => `
+                                <tr>
+                                    <td>${formatCurrency(loan.principal)}</td>
+                                    <td class="status-${loan.status}">${loan.status}</td>
+                                    <td>${formatCurrency(loan.remaining_balance)}</td>
+                                    <td>${loan.application_date}</td>
+                                    <td><button onclick="viewLoanDetails(${loan.id})">View</button></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                ` : '<p>No loans found.</p>';
+                
+                document.getElementById('loansList').innerHTML = html;
+            } catch (error) {
+                document.getElementById('loansList').innerHTML = `<div class="error">Error loading loans: ${error.message}</div>`;
+            }
+        }
+
+        function showLoanApplication() {
+            document.getElementById('loanApplicationModal').classList.remove('hidden');
+        }
+
+        function hideLoanApplication() {
+            document.getElementById('loanApplicationModal').classList.add('hidden');
+        }
+
+        async function submitLoanApplication() {
+            try {
+                const principal = parseFloat(document.getElementById('loanPrincipal').value);
+                const repaymentPeriod = parseInt(document.getElementById('repaymentPeriod').value);
+                
+                await apiCall('/loans/apply', {
+                    method: 'POST',
+                    body: JSON.stringify({ principal, repayment_period: repaymentPeriod })
+                });
+                
+                showMessage('loanApplicationMessage', 'Loan application submitted successfully!', 'success');
+                setTimeout(() => {
+                    hideLoanApplication();
+                    loadUserLoans();
+                }, 2000);
+            } catch (error) {
+                showMessage('loanApplicationMessage', error.message, 'error');
+            }
+        }
+
+        // Savings
+        async function loadUserSavings() {
+            try {
+                const data = await apiCall('/savings/my-savings');
+                document.getElementById('savingsBalance').innerHTML = `
+                    <h4>Current Balance: ${formatCurrency(data.balance)}</h4>
+                `;
+                
+                const transactionsHtml = data.transactions.length > 0 ? `
+                    <h4>Recent Transactions</h4>
+                    <table>
+                        <thead>
+                            <tr><th>Date</th><th>Type</th><th>Amount</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            ${data.transactions.slice(0, 10).map(t => `
+                                <tr>
+                                    <td>${t.transaction_date}</td>
+                                    <td>${t.transaction_type}</td>
+                                    <td>${formatCurrency(t.amount)}</td>
+                                    <td>${t.description || ''}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                ` : '<p>No transactions found.</p>';
+                
+                document.getElementById('savingsTransactions').innerHTML = transactionsHtml;
+            } catch (error) {
+                document.getElementById('savingsBalance').innerHTML = `<div class="error">Error loading savings: ${error.message}</div>`;
+            }
+        }
+
+        // Admin functions
+        let members = [];
+
+        async function loadMembers() {
+            try {
+                members = await apiCall('/auth/members');
+                const select = document.getElementById('savingsMember');
+                select.innerHTML = members.map(m => `<option value="${m.id}">${m.full_name}</option>`).join('');
+            } catch (error) {
+                console.error('Error loading members:', error);
+            }
+        }
+
+        async function loadSystemConfig() {
+            try {
+                const config = await apiCall('/admin/config/financial');
+                const html = `
+                    <table>
+                        <thead>
+                            <tr><th>Setting</th><th>Value</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            ${config.map(c => `
+                                <tr>
+                                    <td>${c.key}</td>
+                                    <td>${c.value}</td>
+                                    <td>${c.description}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                document.getElementById('systemConfig').innerHTML = html;
+            } catch (error) {
+                document.getElementById('systemConfig').innerHTML = `<div class="error">Error loading config: ${error.message}</div>`;
+            }
+        }
+
+        function showPostSavings() {
+            document.getElementById('postSavingsModal').classList.remove('hidden');
+        }
+
+        function hidePostSavings() {
+            document.getElementById('postSavingsModal').classList.add('hidden');
+        }
+
+        async function submitSavings() {
+            try {
+                const userId = document.getElementById('savingsMember').value;
+                const amount = parseFloat(document.getElementById('savingsAmount').value);
+                const description = document.getElementById('savingsDescription').value;
+                
+                await apiCall('/savings/post', {
+                    method: 'POST',
+                    body: JSON.stringify({ user_id: parseInt(userId), amount, description })
+                });
+                
+                showMessage('postSavingsMessage', 'Savings posted successfully!', 'success');
+                setTimeout(() => {
+                    hidePostSavings();
+                    loadDashboard();
+                }, 2000);
+            } catch (error) {
+                showMessage('postSavingsMessage', error.message, 'error');
+            }
+        }
+
+        // Utility functions
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Crownzcom Investment Club - Frontend Loaded');
+        });
+    </script>
+</body>
+</html>
