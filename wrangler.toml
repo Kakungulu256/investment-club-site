@@ -2,18 +2,20 @@ name = "investment-club-api"
 main = "src/worker.js"
 compatibility_date = "2024-01-01"
 
-[env.production]
-name = "investment-club-api"
-
 # D1 Database binding (SQLite-compatible database for Cloudflare Workers)
-[[d1_databases]]
-binding = "DB"
-database_name = "investment-club-db"
-database_id = ""  # Will be generated when you create the database
+# Uncomment and add database_id after creating the database with: wrangler d1 create investment-club-db
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "investment-club-db"
+# database_id = ""  # Add the ID from: wrangler d1 list
 
 # Environment variables
 [vars]
 NODE_ENV = "production"
+
+# Production environment (optional - remove if not needed)
+# [env.production]
+# name = "investment-club-api-prod"
 
 # KV Namespaces (optional, for caching or session storage)
 # [[kv_namespaces]]

@@ -20,8 +20,8 @@
     "sqlite3": "^5.1.6"
   },
   "devDependencies": {
+    "itty-router": "^4.0.0",
     "nodemon": "^3.0.2",
-    "wrangler": "^3.0.0",
-    "itty-router": "^4.0.0"
+    "wrangler": "^4.58.0"
   }
 }
